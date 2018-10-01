@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+		"test": "mocha -r ts-node/register srcs/**/test.ts",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
@@ -20,8 +20,14 @@
     "posttest": "npm run check"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.6",
+    "@types/mocha": "^5.2.5",
     "@types/node": "^10.11.2",
+    "chai": "^4.2.0",
     "gts": "^0.8.0",
-    "typescript": "~2.8.0"
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "typescript": "~2.8.0",
+    "typings": "^2.1.1"
   }
 }

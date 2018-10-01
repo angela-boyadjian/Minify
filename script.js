@@ -1,7 +1,3 @@
-/**
-* marque device date
-*/
-
 var decode = function(encoded) {
 	try {
 		var dsl = 'byte:1 is_led_on; ushort pressure_value; ushort temp_value; ushort altitude; ubyte battery_lvl; byte[6] raw_gps; ';
@@ -26,10 +22,6 @@ function postProcess(encoded, decoded) {
 }
 
 function decodeLatitude(encoded) {
-	/*
-	* gps coordinates encoded as int on 3 bytes; -2^23=-90°; 2^23-1=+90°;
-	*/
-
 	var latitudeHexa = encoded.substring(16, 22);
 	var latitudeInt = parseInt(latitudeHexa, 16);
 

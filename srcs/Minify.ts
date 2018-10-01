@@ -9,7 +9,7 @@ import { exists } from "fs";
 
 const fs = require('fs');
 
-class Minify {
+export class Minify {
 	
 	constructor(file: string) {
 		this.filePath = file;
@@ -57,11 +57,11 @@ class Minify {
 	}
 
 	private handleString(i: number, j: number) : number {
-		if (this.fileContent[i] === '"') {
+		if (this.fileContent[i] === '"' || this.fileContent[i] === '\\') {
 			this.insertAt(j, "\\");
 			++j;
 		}
-		return j;
+ 		return j;
 	}
 	
 	private addChar(i: number, j: number) : number {
@@ -81,8 +81,9 @@ class Minify {
 	}
 
 	private handleHeader() : number {
-		if (this.fileContent[0] === '/')
+		if (this.fileContent[0] === '/') {
 			return this.handleComment(0);
+		}
 		return 1;
 	}
 
@@ -106,7 +107,3 @@ class Minify {
 	private filePath: string;
 	private error: boolean;
 }
-
-const obj: Minify = new Minify("./script.js");
-const str = obj.minify();
-if (str) process.stdout.write(str);

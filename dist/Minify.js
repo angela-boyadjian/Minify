@@ -47,10 +47,9 @@ class Minify {
         return i;
     }
     handleString(i, j) {
-        if (this.fileContent[i] === '"') {
+        if (this.fileContent[i] === '"' || this.fileContent[i] === '\\') {
             this.insertAt(j, "\\");
-            // this.insertAt(j + 1, "\"");
-            j += 1;
+            ++j;
         }
         return j;
     }
@@ -70,8 +69,9 @@ class Minify {
         return i;
     }
     handleHeader() {
-        if (this.fileContent[0] === '/')
+        if (this.fileContent[0] === '/') {
             return this.handleComment(0);
+        }
         return 1;
     }
     minify() {
@@ -88,8 +88,5 @@ class Minify {
         return "";
     }
 }
-const obj = new Minify("./script.js");
-const str = obj.minify();
-if (str)
-    process.stdout.write(str);
+exports.Minify = Minify;
 //# sourceMappingURL=Minify.js.map
