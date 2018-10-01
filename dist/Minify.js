@@ -76,8 +76,8 @@ class Minify {
     }
     minify() {
         this.readContent();
-        this.result = this.fileContent[0];
         if (!this.error) {
+            this.result = this.fileContent[0];
             let j = 1;
             for (let i = 1; this.fileContent[i]; ++i) {
                 j = this.handleString(i, j);
@@ -89,4 +89,12 @@ class Minify {
     }
 }
 exports.Minify = Minify;
+function main() {
+    const args = process.argv;
+    const obj = new Minify(args[2]);
+    const result = obj.minify();
+    if (result)
+        process.stdout.write(result);
+}
+main();
 //# sourceMappingURL=Minify.js.map

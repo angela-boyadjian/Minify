@@ -89,9 +89,9 @@ export class Minify {
 
 	minify() : string {
 		this.readContent();
-		this.result = this.fileContent[0];
-
+		
 		if (!this.error) {
+			this.result = this.fileContent[0];
 			let j = 1;
 			for (let i = 1; this.fileContent[i]; ++i) {
 				j = this.handleString(i, j);
@@ -107,3 +107,13 @@ export class Minify {
 	private filePath: string;
 	private error: boolean;
 }
+
+
+function main() {
+	const args = process.argv;
+	const obj: Minify = new Minify(args[2]);
+	const result = obj.minify();
+	if (result) process.stdout.write(result);
+}
+
+main();
