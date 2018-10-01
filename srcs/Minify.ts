@@ -17,7 +17,7 @@ export class Minify {
 	}
 
 	printResult() {
-		console.log(this.result);
+		process.stdout.write(this.result);
 	}
 
 	get getFileContent() : string {
@@ -108,12 +108,11 @@ export class Minify {
 	private error: boolean;
 }
 
-
 function main() {
 	const args = process.argv;
 	const obj: Minify = new Minify(args[2]);
 	const result = obj.minify();
-	if (result) process.stdout.write(result);
+	obj.printResult();
 }
 
 main();

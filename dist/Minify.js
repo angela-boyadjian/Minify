@@ -13,7 +13,7 @@ class Minify {
         this.error = false;
     }
     printResult() {
-        console.log(this.result);
+        process.stdout.write(this.result);
     }
     get getFileContent() {
         return this.fileContent;
@@ -93,8 +93,7 @@ function main() {
     const args = process.argv;
     const obj = new Minify(args[2]);
     const result = obj.minify();
-    if (result)
-        process.stdout.write(result);
+    obj.printResult();
 }
 main();
 //# sourceMappingURL=Minify.js.map
