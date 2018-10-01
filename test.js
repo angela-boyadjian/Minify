@@ -1,11 +1,15 @@
+/**
+* marque device date
+*/
 
-function postProcess(encoded, decoded) {
+var decode = function(encoded) {
+	try {
+		var dsl = 'byte:1 is_led_on; ushort pressure_value; ushort temp_value; ushort altitude; ubyte battery_lvl; byte[6] raw_gps; ';
+		var decoded = BinaryDecoder.decode(dsl, encoded);
 
-	postProcessTemperaturePressure(decoded);
-	postProcessLocation(encoded, decoded);
-	postProcessLed(decoded);
-	postProcessBatteryLevel(decoded);
-	decoded = JSON.stringify(decoded);
-	return decoded;
-}
+		return postProcess(encoded, JSON.parse(decoded));
 
+	} catch (e) {
+		return "{\"error\":\"decoding failed\"}";
+	}
+};

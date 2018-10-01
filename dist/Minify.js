@@ -39,26 +39,57 @@ class Minify {
     getFilePath() {
         return this.filePath;
     }
+    getStringLength(idx) {
+        let i;
+        for (i = idx; this.fileContent[i] && this.fileContent[i] !== '\"'
+            && this.fileContent[i - 1] !== '\\'; ++i)
+            ;
+        return i;
+    }
+    handleString(i, j) {
+        if (this.fileContent[i] === '"') {
+            this.insertAt(j, "\\");
+            // this.insertAt(j + 1, "\"");
+            j += 1;
+        }
+        return j;
+    }
+    addChar(i, j) {
+        if (this.fileContent[i] !== '\n' && this.fileContent[i] !== '\t') {
+            this.insertAt(j, this.fileContent[i]);
+            ++j;
+        }
+        return j;
+    }
+    handleComment(i) {
+        if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
+            for (i; this.fileContent[i + 1] !== '/'; ++i)
+                ;
+            return i + 2;
+        }
+        return i;
+    }
+    handleHeader() {
+        if (this.fileContent[0] === '/')
+            return this.handleComment(0);
+        return 1;
+    }
     minify() {
         this.readContent();
         this.result = this.fileContent[0];
         if (!this.error) {
-            let j = 0;
-            let idx = 0;
-            for (const char of this.fileContent) {
-                if (char !== '\n' && char !== '\t') {
-                    this.insertAt(j, char);
-                    ++j;
-                }
-                ++idx;
+            let j = 1;
+            for (let i = 1; this.fileContent[i]; ++i) {
+                j = this.handleString(i, j);
+                j = this.addChar(i, j);
             }
             return this.result;
         }
         return "";
     }
 }
-const obj = new Minify("./test.js");
+const obj = new Minify("./script.js");
 const str = obj.minify();
 if (str)
-    console.log(str);
+    process.stdout.write(str);
 //# sourceMappingURL=Minify.js.map

@@ -28,7 +28,7 @@ class Minify {
 		this.fileContent = str;
 	}
 
-	readContent() {
+	private readContent() {
 		if (fs.existsSync(this.filePath)) {
 				this.fileContent = fs.readFileSync(this.filePath, 'utf8');
 		} else {
@@ -47,30 +47,66 @@ class Minify {
 	getFilePath() : string {
 		return this.filePath;
 	}
+
+	private getStringLength(idx: number) : number {
+		let i;
+
+		for (i = idx; this.fileContent[i] && this.fileContent[i] !== '\"'
+			&& this.fileContent[i - 1] !== '\\'; ++i);
+		return i;
+	}
+
+	private handleString(i: number, j: number) : number {
+		if (this.fileContent[i] === '"') {
+			this.insertAt(j, "\\");
+			++j;
+		}
+		return j;
+	}
 	
+	private addChar(i: number, j: number) : number {
+		if (this.fileContent[i] !== '\n' && this.fileContent[i] !== '\t') {
+			this.insertAt(j, this.fileContent[i]);
+			++j;
+		}
+		return j;
+	}
+
+	private handleComment(i: number) : number {
+		if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
+			for (i; this.fileContent[i + 1] !== '/'; ++i);
+			return i + 2;
+		}
+		return i;
+	}
+
+	private handleHeader() : number {
+		if (this.fileContent[0] === '/')
+			return this.handleComment(0);
+		return 1;
+	}
+
 	minify() : string {
 		this.readContent();
 		this.result = this.fileContent[0];
+
 		if (!this.error) {
-			let j = 0;
-			let idx = 0;
-			for (const char of this.fileContent) {
-				if (char !== '\n' && char !== '\t') {
-					this.insertAt(j, char);
-					++j;
-				}
-				++idx;
+			let j = 1;
+			for (let i = 1; this.fileContent[i]; ++i) {
+				j = this.handleString(i, j);
+				j = this.addChar(i, j);
 			}
 			return this.result;
 		}
 		return "";
 	}
+
 	private result: string;
 	private fileContent: string;
 	private filePath: string;
 	private error: boolean;
 }
 
-const obj: Minify = new Minify("./test.js");
+const obj: Minify = new Minify("./script.js");
 const str = obj.minify();
-if (str) console.log(str);
+if (str) process.stdout.write(str);
