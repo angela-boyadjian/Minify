@@ -16,75 +16,61 @@ class Minify {
 		this.error = false;
 	}
 
-	public printResult() {
+	printResult() {
 		console.log(this.result);
 	}
 
-	get getFileContent() : String {
+	get getFileContent() : string {
 		return this.fileContent;
 	}
 
-	set setFileContent(str: String) {
-		this.fileContent = new String(str);
+	set setFileContent(str: string) {
+		this.fileContent = str;
 	}
 
-	public readContent() : String {
-		let str: String = "error";
-		fs.exists(this.filePath, (fileok: any) => {
-			if (fileok) {
-				fs.readFile(this.filePath, (error:any, data: string) => {
-					this.setFileContent = data;
-					str = data;
-					return data;
-				});
-			} else {
-				console.log("File not found\n");
-				this.error = true;
-			}
-		});
-		return str;
+	readContent() {
+		if (fs.existsSync(this.filePath)) {
+				this.fileContent = fs.readFileSync(this.filePath, 'utf8');
+		} else {
+			console.log("File not found\n");
+			this.error = true;
+		}
 	}
 	
-	private insertAt(str: String, index: number, toAdd: string) {
-		let firstHalf = str.slice(0, index);
-		let secondHalf = str.slice(index, this.result.length);
-		let newStr = firstHalf.concat(toAdd, secondHalf);
-		return newStr;
+	private insertAt(index: number, toAdd: string) {
+		const firstHalf = this.result.slice(0, index);
+		const secondHalf = this.result.slice(index, this.result.length);
+		const newStr = firstHalf.concat(toAdd, secondHalf);
+		this.result = newStr;
 	}
 
-	public getFilePath() : string {
+	getFilePath() : string {
 		return this.filePath;
 	}
 	
-	public minify() : string {
-		this.fileContent = fs.readFile(this.filePath, 'utf8');
-		console.log(this.getFileContent);
-		console.log(this.fileContent);
-		this.result = new String(this.fileContent[0]);
+	minify() : string {
+		this.readContent();
+		this.result = this.fileContent[0];
 		if (!this.error) {
 			let j = 0;
 			let idx = 0;
-			for (let char of this.fileContent.toString()) {
-				if (char != '\n' && char != '\t') {
-					let firstHalf = this.result.slice(0, idx);
-					let secondHalf = this.result.slice(idx, this.result.length);
-					let newStr = firstHalf.concat(char, secondHalf);
-					this.result = new String(newStr);
+			for (const char of this.fileContent) {
+				if (char !== '\n' && char !== '\t') {
+					this.insertAt(j, char);
 					++j;
 				}
 				++idx;
 			}
-			return this.result.toString() as string;
+			return this.result;
 		}
-	return "";
+		return "";
 	}
-	private result: String;
-	private fileContent: String;
+	private result: string;
+	private fileContent: string;
 	private filePath: string;
 	private error: boolean;
 }
 
-let obj: Minify = new Minify("./test.js");
-let s = obj.readContent();
-let str = obj.minify();
-if (str) console.log("str -> ", str);
+const obj: Minify = new Minify("./test.js");
+const str = obj.minify();
+if (str) console.log(str);
