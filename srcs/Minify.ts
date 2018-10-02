@@ -48,14 +48,6 @@ export class Minify {
 		return this.filePath;
 	}
 
-	private getStringLength(idx: number) : number {
-		let i;
-
-		for (i = idx; this.fileContent[i] && this.fileContent[i] !== '\"'
-			&& this.fileContent[i - 1] !== '\\'; ++i);
-		return i;
-	}
-
 	private handleString(i: number, j: number) : number {
 		if (this.fileContent[i] === '"' || this.fileContent[i] === '\\') {
 			this.insertAt(j, "\\");
@@ -108,11 +100,16 @@ export class Minify {
 	private error: boolean;
 }
 
-function main() {
+function main() : number {
 	const args = process.argv;
+	if (process.argv.length < 3) {
+		console.log("Not enough arguments.\nPlease specify a file path.");
+		return -1;
+	}
 	const obj: Minify = new Minify(args[2]);
 	const result = obj.minify();
 	obj.printResult();
+	return 0;
 }
 
 main();

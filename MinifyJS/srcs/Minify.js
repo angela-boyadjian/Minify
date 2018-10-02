@@ -227,6 +227,10 @@ class Minify {
 
 function main() {
 	const args = process.argv;
+	if (process.argv.length < 3) {
+		console.log("Not enough arguments.\nPlease specify a file path.");
+		return -1;
+	}
 	const obj = new Minify(args[2]);
 	obj.minify();
 	obj.printResult();

@@ -39,13 +39,6 @@ class Minify {
     getFilePath() {
         return this.filePath;
     }
-    getStringLength(idx) {
-        let i;
-        for (i = idx; this.fileContent[i] && this.fileContent[i] !== '\"'
-            && this.fileContent[i - 1] !== '\\'; ++i)
-            ;
-        return i;
-    }
     handleString(i, j) {
         if (this.fileContent[i] === '"' || this.fileContent[i] === '\\') {
             this.insertAt(j, "\\");
@@ -91,9 +84,14 @@ class Minify {
 exports.Minify = Minify;
 function main() {
     const args = process.argv;
+    if (process.argv.length < 3) {
+        console.log("Not enough arguments.\nPlease specify a file path.");
+        return -1;
+    }
     const obj = new Minify(args[2]);
     const result = obj.minify();
     obj.printResult();
+    return 0;
 }
 main();
 //# sourceMappingURL=Minify.js.map
