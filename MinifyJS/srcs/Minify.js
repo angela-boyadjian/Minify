@@ -17,6 +17,10 @@ class Minify {
 		this.mapVar = new Map();
 		this.key = 'a';
 		this.mapVar.set(this.key, "");
+		this.brackets = {
+			left:0,
+			right:0
+		};
 	}
 
 	printResult() {
@@ -55,28 +59,31 @@ class Minify {
 		return 1;
 	}
 
-	isAlphaNum(ch) {
-		return ch.match(/^[a-z0-9]+$/i) !== null;
-	}
+	isAlphaNum(str) {
+		return str.match(/^[a-z0-9]+$/i) !== null;
+	};
 	
 	initArray() {
 		var save = "";
 
 		for (var i = 0; this.fileContent[i]; ++i) {
-			if (!this.isAlphaNum(this.fileContent[i])) {
-				if (this.fileContent[i] === ' ')
-				continue;
-				if (this.fileContent[i] === '\n')
-					continue;
+			if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
+				for (i; this.fileContent[i + 1] !== '/'; ++i);
+				i += 2;
+			}
+			if (!this.isAlphaNum(this.fileContent[i]) && this.fileContent[i] !== ' ') {
 				save += this.fileContent[i];
-				if (save !== '\t')
+				if (save !== '\t' && save !== '\n')
 					this.array.push(save);
 				save = ""
 			} else {
-				while (this.isAlphaNum(this.fileContent[i]))
-					save += this.fileContent[i++];
-				this.array.push(save);
-				save = ""
+				if (this.isAlphaNum(this.fileContent[i])) {
+					while (this.isAlphaNum(this.fileContent[i]))
+						save += this.fileContent[i++];
+					--i;
+					this.array.push(save);
+					save = ""
+				}
 			}
 		}
 	}
@@ -121,6 +128,63 @@ class Minify {
 		this.incrementKey();
 	}
 
+	handleBrackets(i) {
+		if (this.array[i] === "{")
+			this.brackets.left += 1;
+		else if (this.array[i] === "}") {
+			this.brackets.right += 1;
+			if (this.brackets.right === this.brackets.left) {
+				this.brackets.right = 0;
+				this.brackets.left = 0;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	resetMap() {
+		this.mapVar.clear();
+		this.key = 'a';
+		this.mapVar.set(this.key, "");
+	}
+
+	getParamName(i) {
+	
+		while (this.array[i] !== '(')
+			this.result += this.array[i++];
+		this.result += this.array[i];
+		for (++i; this.array[i] !== ')'; ++i) {
+			if (this.array[i] === ',')
+				continue;
+			else
+				this.handleVariables(i);
+		}
+		return i;
+	}
+
+	fill(i) {
+		for (i; i < this.array.length; ++i) {
+			i = this.handleComment(i);
+			if (this.handleBrackets(i))
+				this.resetMap();
+			if (this.array[i] === "function")
+				i = this.getParamName(i);
+			if (this.array[i] === "var") {
+				this.handleVariables(i + 1);
+				++i;
+			} else {
+				var key = this.getKey(this.array[i]);
+
+				if (key != -1) { {
+					this.result += key;
+				}
+				} else {
+					this.result += this.array[i];
+				}
+			}
+		}
+	}
+
 	minify() {
 		this.readContent();
 
@@ -135,31 +199,18 @@ class Minify {
 			} else {
 				this.result = this.array[0];
 			}
-			for (i; i < this.array.length; ++i) {
-				if (this.array[i] === "var") {
-					this.handleVariables(i + 1);
-					++i;
-				} else {
-					var key = this.getKey(this.array[i]);
-
-					if (key != -1) { {
-						this.result += key;
-					}
-					} else {
-						this.result += this.array[i];
-					}
-				}
-			}
+			this.fill(i);
 			return this.result;
 		}
 		return "";
 	}
+
 }
 
 function main() {
 	const args = process.argv;
 	const obj = new Minify(args[2]);
-	const result = obj.minify();
+	obj.minify();
 	obj.printResult();
 }
 
