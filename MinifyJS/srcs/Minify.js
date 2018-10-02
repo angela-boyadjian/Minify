@@ -63,28 +63,42 @@ class Minify {
 		return str.match(/^[a-z0-9]+$/i) !== null;
 	};
 	
+	skipComment(i) {
+		if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
+			for (i; this.fileContent[i + 1] !== '/'; ++i);
+			i += 2;
+		}
+		return i;
+	}
+
+	addWordsToArray(i, save) {
+		if (this.isAlphaNum(this.fileContent[i])) {
+			while (this.isAlphaNum(this.fileContent[i]))
+				save += this.fileContent[i++];
+			--i;
+			this.array.push(save);
+			save = ""
+		}
+		return i;
+	}
+
+	addSymbolsToArray(i, save) {
+		save += this.fileContent[i];
+		if (save !== '\t' && save !== '\n')
+			this.array.push(save);
+		save = ""
+		return i;
+	}
+
 	initArray() {
 		var save = "";
 
 		for (var i = 0; this.fileContent[i]; ++i) {
-			if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
-				for (i; this.fileContent[i + 1] !== '/'; ++i);
-				i += 2;
-			}
-			if (!this.isAlphaNum(this.fileContent[i]) && this.fileContent[i] !== ' ') {
-				save += this.fileContent[i];
-				if (save !== '\t' && save !== '\n')
-					this.array.push(save);
-				save = ""
-			} else {
-				if (this.isAlphaNum(this.fileContent[i])) {
-					while (this.isAlphaNum(this.fileContent[i]))
-						save += this.fileContent[i++];
-					--i;
-					this.array.push(save);
-					save = ""
-				}
-			}
+			i = this.skipComment(i);
+			if (!this.isAlphaNum(this.fileContent[i]) && this.fileContent[i] !== ' ')
+				i = this.addSymbolsToArray(i, save);
+			else
+				i = this.addWordsToArray(i, save);
 		}
 	}
 
@@ -162,6 +176,15 @@ class Minify {
 		return i;
 	}
 
+	fillWordToResult(i) {
+		var key = this.getKey(this.array[i]);
+
+		if (key != -1)
+			this.result += key;
+		else
+			this.result += this.array[i];
+	}
+
 	fill(i) {
 		for (i; i < this.array.length; ++i) {
 			i = this.handleComment(i);
@@ -173,14 +196,7 @@ class Minify {
 				this.handleVariables(i + 1);
 				++i;
 			} else {
-				var key = this.getKey(this.array[i]);
-
-				if (key != -1) { {
-					this.result += key;
-				}
-				} else {
-					this.result += this.array[i];
-				}
+				this.fillWordToResult(i);
 			}
 		}
 	}
@@ -191,8 +207,10 @@ class Minify {
 		if (!this.error) {
 			this.handleHeader();
 			this.initArray();
+
 			this.result = "";
 			var i = 1;
+
 			if (this.array[0] === "var") {
 				this.handleVariables(1);
 				++i;
