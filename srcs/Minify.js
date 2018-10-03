@@ -211,7 +211,9 @@ class Minify {
 			this.result = "";
 			var i = 1;
 
-			if (this.array[0] === "var") {
+			if (this.array[0] === "function") {
+				i = this.getParamName(0);
+			} else if (this.array[0] === "var") {
 				this.handleVariables(1);
 				++i;
 			} else {
