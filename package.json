@@ -1,33 +1,14 @@
 {
-  "name": "",
-  "version": "0.0.0",
-  "description": "",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
-  "files": [
-    "build/src"
-  ],
-  "license": "Apache-2.0",
-  "keywords": [],
+  "name": "minifyjs",
+  "version": "1.0.0",
+  "description": "Program to minify code",
+  "main": "index.js",
   "scripts": {
-		"test": "mocha -r ts-node/register srcs/**/test.ts",
-    "check": "gts check",
-    "clean": "gts clean",
-    "compile": "tsc -p .",
-    "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run check"
+    "test": "jasmine"
   },
+  "author": "angela",
+  "license": "ISC",
   "devDependencies": {
-    "@types/chai": "^4.1.6",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.11.2",
-    "chai": "^4.2.0",
-    "gts": "^0.8.0",
-    "mocha": "^5.2.0",
-    "ts-node": "^7.0.1",
-    "typescript": "~2.8.0",
-    "typings": "^2.1.1"
+    "jasmine": "^3.2.0"
   }
 }
