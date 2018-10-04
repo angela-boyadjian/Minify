@@ -153,7 +153,6 @@ class Minify {
 
 		this.mapVar.set(this.key, this.array[i + 1]);
 		this.result += this.array[i] + " " + this.key;
-		// this.result += this.key;
 		this.incrementKey();
 	}
 
