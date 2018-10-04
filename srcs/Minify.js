@@ -1,8 +1,8 @@
 /*
-* @Author: Angela 
-* @Date: 2018-09-27 22:28:39 
-* @Last Modified by: Angela
-* @Last Modified time: 2018-09-27 22:35:28
+* Author: angela.boyadjian
+* Date: 2018-10-04 14:03:10
+* Last Modified by: angela.boyadjian
+* Last Modified time: 2018-10-04 14:03:10
 */
 
 const fs = require('fs');
@@ -10,6 +10,7 @@ const fs = require('fs');
 class Minify {
 	
 	constructor(file) {
+
 		this.filePath = file;
 		this.fileContent = "";
 		this.error = false;
@@ -24,18 +25,22 @@ class Minify {
 	}
 
 	printResult() {
+
 		process.stdout.write(this.result);
 	}
 
 	get getFileContent() {
+
 		return this.fileContent;
 	}
 
 	set setFileContent(str) {
+
 		this.fileContent = str;
 	}
 
 	readContent() {
+
 		if (fs.existsSync(this.filePath)) {
 				this.fileContent = fs.readFileSync(this.filePath, 'utf8');
 		} else {
@@ -45,6 +50,7 @@ class Minify {
 	}
 	
 	handleComment(i) {
+
 		if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
 			for (i; this.fileContent[i + 1] !== '/'; ++i);
 			return i + 2;
@@ -53,6 +59,7 @@ class Minify {
 	}
 
 	handleHeader() {
+
 		if (this.fileContent[0] === '/') {
 			return this.handleComment(0);
 		}
@@ -60,10 +67,12 @@ class Minify {
 	}
 
 	isAlphaNum(str) {
+
 		return str.match(/^[a-z0-9]+$/i) !== null;
 	};
 	
 	skipComment(i) {
+
 		if (this.fileContent[i] === '/' && this.fileContent[i + 1] === '*') {
 			for (i; this.fileContent[i + 1] !== '/'; ++i);
 			i += 2;
@@ -72,6 +81,7 @@ class Minify {
 	}
 
 	addWordsToArray(i, save) {
+
 		if (this.isAlphaNum(this.fileContent[i])) {
 			while (this.isAlphaNum(this.fileContent[i]))
 				save += this.fileContent[i++];
@@ -91,6 +101,7 @@ class Minify {
 	}
 
 	initArray() {
+
 		var save = "";
 
 		for (var i = 0; this.fileContent[i]; ++i) {
@@ -103,6 +114,7 @@ class Minify {
 	}
 
 	getKey(str) {
+
 		for (var [key, value] of this.mapVar) {
 			if (str === value)
 				return key;
@@ -111,6 +123,7 @@ class Minify {
 	}
 
 	incrementKey() {
+
 		switch (this.key) {
 			case 'a':
 				this.key = 'b';
@@ -137,12 +150,15 @@ class Minify {
 	}
 
 	handleVariables(i) {
-		this.mapVar.set(this.key, this.array[i]);
-		this.result += this.key;
+
+		this.mapVar.set(this.key, this.array[i + 1]);
+		this.result += this.array[i] + " " + this.key;
+		// this.result += this.key;
 		this.incrementKey();
 	}
 
 	handleBrackets(i) {
+
 		if (this.array[i] === "{")
 			this.brackets.left += 1;
 		else if (this.array[i] === "}") {
@@ -157,6 +173,7 @@ class Minify {
 	}
 
 	resetMap() {
+
 		this.mapVar.clear();
 		this.key = 'a';
 		this.mapVar.set(this.key, "");
@@ -168,15 +185,19 @@ class Minify {
 			this.result += this.array[i++];
 		this.result += this.array[i];
 		for (++i; this.array[i] !== ')'; ++i) {
-			if (this.array[i] === ',')
+			if (this.array[i] === ',') {
 				continue;
-			else
-				this.handleVariables(i);
+			} else {
+				this.mapVar.set(this.key, this.array[i]);
+				this.result += this.key;
+				this.incrementKey();
+			}
 		}
 		return i;
 	}
 
 	fillWordToResult(i) {
+
 		var key = this.getKey(this.array[i]);
 
 		if (key != -1)
@@ -186,14 +207,16 @@ class Minify {
 	}
 
 	fill(i) {
+
 		for (i; i < this.array.length; ++i) {
 			i = this.handleComment(i);
 			if (this.handleBrackets(i))
 				this.resetMap();
 			if (this.array[i] === "function")
 				i = this.getParamName(i);
-			if (this.array[i] === "var") {
-				this.handleVariables(i + 1);
+			if (this.array[i] === "var" || this.array[i] === "let"
+				|| this.array[i] === "const") {
+				this.handleVariables(i);
 				++i;
 			} else {
 				this.fillWordToResult(i);
@@ -202,6 +225,7 @@ class Minify {
 	}
 
 	minify() {
+
 		this.readContent();
 
 		if (!this.error) {
@@ -213,8 +237,9 @@ class Minify {
 
 			if (this.array[0] === "function") {
 				i = this.getParamName(0);
-			} else if (this.array[0] === "var") {
-				this.handleVariables(1);
+			} else if (this.array[0] === "var" || this.array[0] === "let"
+				|| this.array[0] === "const") {
+				this.handleVariables(0);
 				++i;
 			} else {
 				this.result = this.array[0];
@@ -228,7 +253,9 @@ class Minify {
 }
 
 function main() {
+
 	const args = process.argv;
+
 	if (process.argv.length < 3) {
 		console.log("Not enough arguments.\nPlease specify a file path.");
 		return -1;
