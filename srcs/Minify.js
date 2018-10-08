@@ -246,6 +246,7 @@ class Minify {
 			this.fill(i);
 			return this.result;
 		}
+		console.log("Error while minifying");
 		return "";
 	}
 
