@@ -94,7 +94,7 @@ class Minify {
 
 	addSymbolsToArray(i, save) {
 		save += this.fileContent[i];
-		if (save !== '\t' && save !== '\n')
+		if (save !== '\t' && save !== '\n' && save !== '\r')
 			this.array.push(save);
 		save = ""
 		return i;
